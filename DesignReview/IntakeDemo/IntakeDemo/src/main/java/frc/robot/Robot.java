@@ -96,7 +96,7 @@ public class Robot extends IterativeRobot {
    */
   @Override
   public void teleopPeriodic() {
-    if (XboxController.getBumper(GenericHID.Hand.kRight) && (limitSwitch.get());
+    if (XboxController.getBumper(GenericHID.Hand.kRight) && limitSwitch.get())
     {
       leftIntake.set(-1);
       rightIntake.set(-1);
