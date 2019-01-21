@@ -39,8 +39,8 @@ public class Robot extends TimedRobot {
   private CANEncoder frontRightEncoder = frontRight.getEncoder();
   private CANEncoder backLeftEncoder = backLeft.getEncoder();
   private CANEncoder backRightEncoder = backRight.getEncoder();
-  private double rightAverageStart = (frontRightEncoder.getPosition() + backRightEncoder.getPosition())/2.0;
-  private double leftAverageStart = (frontLeftEncoder.getPosition() + backLeftEncoder.getPosition())/2.0;
+  private double rightAverageStart = backRightEncoder.getPosition(); //+ backRightEncoder.getPosition())/2.0;
+  private double leftAverageStart = backLeftEncoder.getPosition(); //+ backLeftEncoder.getPosition())/2.0;
   private double rightAverageTrue = 0;
   private double leftAverageTrue = 0;
   private double speedMod = .1;
@@ -53,15 +53,15 @@ public class Robot extends TimedRobot {
   private XboxController chassisJoystick = new XboxController(0);
   private void updateEncoders()
   {
-    double leftCur = (frontLeftEncoder.getPosition() + backLeftEncoder.getPosition())/2;
-    double rightCur = (frontRightEncoder.getPosition() + backRightEncoder.getPosition())/2;
+    double leftCur = backLeftEncoder.getPosition(); //+ backLeftEncoder.getPosition())/2;
+    double rightCur = backRightEncoder.getPosition(); //+ backRightEncoder.getPosition())/2;
     rightAverageTrue = rightCur - rightAverageStart;
     leftAverageTrue = leftCur - leftAverageStart;
   }
   private void resetEncoders()
   {
-    rightAverageStart = (frontRightEncoder.getPosition() + backRightEncoder.getPosition())/2.0;
-    leftAverageStart = (frontLeftEncoder.getPosition() + backLeftEncoder.getPosition())/2.0;
+    rightAverageStart = backRightEncoder.getPosition();// + backRightEncoder.getPosition())/2.0;
+    leftAverageStart = backLeftEncoder.getPosition(); //+ backLeftEncoder.getPosition())/2.0;
   }
   /**
    * This function is run when the robot is first started up and should be
