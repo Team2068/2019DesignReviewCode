@@ -43,7 +43,8 @@ public class Robot extends TimedRobot {
   private double leftAverageStart = (frontLeftEncoder.getPosition() + backLeftEncoder.getPosition())/2.0;
   private double rightAverageTrue = 0;
   private double leftAverageTrue = 0;
-  private double speedMod = .5;
+  private double speedMod = .1;
+  private int directionMod = 1;
   //private SpeedControllerGroup leftSide = new SpeedControllerGroup(frontLeft, backLeft);
   //private SpeedControllerGroup rightSide = new SpeedControllerGroup(frontRight, backRight);
 
@@ -76,6 +77,9 @@ public class Robot extends TimedRobot {
     //frontRight.setIdleMode(IdleMode.kBrake);
     backLeft.setIdleMode(IdleMode.kCoast);
     backRight.setIdleMode(IdleMode.kCoast);
+    backLeft.setInverted(true);
+    backRight.setInverted(true);
+
   }
 
   /**
@@ -149,10 +153,10 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     //chassis.tankDrive(chassisJoystick.getY(Hand.kLeft), chassisJoystick.getY(Hand.kLeft), true);
-    backLeft.set(chassisJoystick.getY(GenericHID.Hand.kLeft)*speedMod);
+    backLeft.set(chassisJoystick.getY(GenericHID.Hand.kLeft)*speedMod*directionMod);
     //frontRight.set(chassisJoystick.getY(GenericHID.Hand.kLeft));
     //frontRight.set(chassisJoystick.getY(GenericHID.Hand.kRight));
-    backRight.set(((double)chassisJoystick.getY(GenericHID.Hand.kRight))*speedMod);
+    backRight.set(chassisJoystick.getY(GenericHID.Hand.kRight)*speedMod*directionMod);
     if(chassisJoystick.getYButtonPressed() && speedMod < 1)
     {
       speedMod+= .1;
@@ -160,6 +164,10 @@ public class Robot extends TimedRobot {
     else if(chassisJoystick.getAButtonPressed() && speedMod > 0)
     {
       speedMod-= .1;
+    }
+    else if(chassisJoystick.getXButtonPressed())
+    {
+      directionMod = directionMod*-1;
     }
 
   }
