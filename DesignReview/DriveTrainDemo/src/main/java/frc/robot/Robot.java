@@ -31,10 +31,18 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  //private CANSparkMax frontLeft = new CANSparkMax(10, MotorType.kBrushless);
-  //private CANSparkMax frontRight = new CANSparkMax(11, MotorType.kBrushless);
+  private CANSparkMax frontLeft = new CANSparkMax(10, MotorType.kBrushless);
+  private CANSparkMax frontRight = new CANSparkMax(11, MotorType.kBrushless);
   private CANSparkMax backLeft = new CANSparkMax(12, MotorType.kBrushless);
   private CANSparkMax backRight = new CANSparkMax(13, MotorType.kBrushless);
+  private CANEncoder frontLeftEncoder = frontLeft.getEncoder();
+  private CANEncoder frontRightEncoder = frontRight.getEncoder();
+  private CANEncoder backLeftEncoder = backLeft.getEncoder();
+  private CANEncoder backRightEncoder = backRight.getEncoder();
+  private double rightAverageStart = (frontRightEncoder.getPosition() + backRightEncoder.getPosition())/2.0;
+  private double leftAverageStart = (frontLeftEncoder.getPosition() + backLeftEncoder.getPosition())/2.0;
+  private double rightAverageTrue = 0;
+  private double leftAverageTrue = 0;
   private double speedMod = .5;
   //private SpeedControllerGroup leftSide = new SpeedControllerGroup(frontLeft, backLeft);
   //private SpeedControllerGroup rightSide = new SpeedControllerGroup(frontRight, backRight);
@@ -42,7 +50,18 @@ public class Robot extends TimedRobot {
   //private DifferentialDrive chassis = new DifferentialDrive(backLeft, backRight);
 
   private XboxController chassisJoystick = new XboxController(0);
-
+  private void updateEncoders()
+  {
+    double leftCur = (frontLeftEncoder.getPosition() + backLeftEncoder.getPosition())/2;
+    double rightCur = (frontRightEncoder.getPosition() + backRightEncoder.getPosition())/2;
+    rightAverageTrue = rightCur - rightAverageStart;
+    leftAverageTrue = leftCur - leftAverageStart;
+  }
+  private void resetEncoders()
+  {
+    rightAverageStart = (frontRightEncoder.getPosition() + backRightEncoder.getPosition())/2.0;
+    leftAverageStart = (frontLeftEncoder.getPosition() + backLeftEncoder.getPosition())/2.0;
+  }
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -94,17 +113,35 @@ public class Robot extends TimedRobot {
    * This function is called periodically during autonomous.
    */
   @Override
-  public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
+  public void autonomousPeriodic() 
+    {
+        double targetRevs = 32.286;
+        resetEncoders();
+        while(leftAverageTrue < targetRevs || rightAverageTrue < targetRevs)
+        {
+          if(leftAverageTrue < targetRevs)
+          {
+            frontLeft.set(.75);
+            backLeft.set(.75);
+          }
+          if(rightAverageTrue < targetRevs)
+          {
+            frontRight.set(.75);
+            frontLeft.set(.75);
+          }
+          updateEncoders();
+        }
+        frontLeft.set(0);
+        backLeft.set(0);
+        frontRight.set(0);
+        backRight.set(0);
+        while(DriverStation.getInstance().isAutonomous())
+        {
+          chassisJoystick.setRumble(GenericHID.RumbleType.kLeftRumble,1);
+        }
+    
     }
-  }
+  
 
   /**
    * This function is called periodically during operator control.
@@ -115,7 +152,7 @@ public class Robot extends TimedRobot {
     backLeft.set(chassisJoystick.getY(GenericHID.Hand.kLeft)*speedMod);
     //frontRight.set(chassisJoystick.getY(GenericHID.Hand.kLeft));
     //frontRight.set(chassisJoystick.getY(GenericHID.Hand.kRight));
-    backRight.set(chassisJoystick.getY(GenericHID.Hand.kRight)*speedMod);
+    backRight.set(((double)chassisJoystick.getY(GenericHID.Hand.kRight))*speedMod);
     if(chassisJoystick.getYButtonPressed() && speedMod < 1)
     {
       speedMod+= .1;
