@@ -57,6 +57,8 @@ public class Robot extends TimedRobot {
     double rightCur = backRightEncoder.getPosition(); //+ backRightEncoder.getPosition())/2;
     rightAverageTrue = rightCur - rightAverageStart;
     leftAverageTrue = leftCur - leftAverageStart;
+    System.out.println("Left Side: " + leftAverageTrue);
+    System.out.println("Right SIde: " +rightAverageTrue);
   }
   private void resetEncoders()
   {
