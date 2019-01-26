@@ -16,6 +16,7 @@ import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.drive.*;
+import frc.sensors.*;
 
 
 /**
@@ -36,7 +37,7 @@ public class Robot extends TimedRobot {
   private CANSparkMax backLeft = new CANSparkMax(13, MotorType.kBrushless);
   private CANSparkMax backRight = new CANSparkMax(11, MotorType.kBrushless);
   private XboxController mechanismController = new XboxController(1);
-  private Lift lift = new Lift(new CANSparkMax(12,MotorType.kBrushless), mechanismController );
+  private Lift lift = new Lift(new CANSparkMax(12,MotorType.kBrushless), mechanismController, new LimitSwitch(0));
   
   //private CANEncoder frontLeftEncoder = frontLeft.getEncoder();
   //private CANEncoder frontRightEncoder = frontRight.getEncoder();

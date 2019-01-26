@@ -3,7 +3,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-
+import frc.sensors.*;
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -13,17 +13,22 @@ public class Lift
 {
     private CANSparkMax motor;
     private XboxController controller;
-    private CANEncoder encoder;
+    private VirtualCANEncoder encoder;
+    private LimitSwitch cargoSwitch;
     private double trueTicks = 0;
     private double startTicks = 0;
-    private boolean hatchMode = false;
-    private double[] encoderHeights = {0,33.14,47.193,122.639,131.67,201.2,213.532};
+    private boolean hatchMode = true;
+    
+    private double[] hatchHeights = {47.193, 131.67, 213.532};
+    private double[] cargoHeights = {33.14, 122.639, 201.2};
     private int curPosition = 0;
-    public Lift(CANSparkMax motor,XboxController controller)
+    public Lift(CANSparkMax motor,XboxController controller, LimitSwitch cargoSwitch)
     {
         this.motor = motor;
         this.controller= controller;
-        encoder = motor.getEncoder();
+        encoder = new VirtualCANEncoder(motor);
+        this.cargoSwitch = cargoSwitch;
+        motor.setInverted(true);
     }
     public void baseLiftControl()
     {
@@ -41,29 +46,28 @@ public class Lift
         }
         else if(controller.getYButtonPressed())
         {
-            resetEncoder();
+            encoder.getPosition();
         }
         else
         {
             motor.set(0);
         }
-        updateEncoder();
+        
     }
-    private void updateEncoder()
-    {
-        trueTicks = startTicks - encoder.getPosition();
-    }
-    private void resetEncoder()
-    {
-        startTicks = encoder.getPosition();
-    }
+    
     public void steppingLiftControl()
     {
-        if(controller.getAButtonPressed())
+        
+        double[] selectedHeights = hatchHeights;
+        if(!hatchMode)
+        {
+            selectedHeights = cargoHeights;
+        }
+        if(controller.getAButtonPressed() && curPosition > 0)
         {
             curPosition--;
         }
-        else if(controller.getYButtonPressed())
+        else if(controller.getYButtonPressed() && curPosition < selectedHeights.length-1)
         {
             curPosition++;
         }
@@ -73,29 +77,32 @@ public class Lift
             hatchMode = !hatchMode;
             
         }
-        double targetRevs = encoderHeights[curPosition];
-        //if(!hatchSwitch.get())
-        
-        if(trueTicks < targetRevs)
+        if(!hatchMode && curPosition == 0)
         {
             
-            motor.set(-.75);
-            updateEncoder();
-            
+                if(!cargoSwitch.get())
+                {
+                    motor.set(-.75);
+                }
+                encoder.reset();
+                
         }
-        else if(trueTicks > targetRevs)
-        {
+            if(encoder.getPosition() < selectedHeights[curPosition])
+            {
+                if(encoder.getPosition() < selectedHeights[curPosition])
+                {
+                    motor.set(1);
+                }
+            }
+            else if(encoder.getPosition() > selectedHeights[curPosition])
+            {
+                if(encoder.getPosition() > selectedHeights[curPosition])
+                {
+                    motor.set(-1);
+                }
+            }
+            System.out.println("Target Position: " + selectedHeights[curPosition]);
+            System.out.println("Current Position: " + encoder.getPosition());
             
-            motor.set(.75);
-            updateEncoder();
-            
-        }
-        else
-        {
-            motor.set(0);
-            updateEncoder();
-        }
-        //TODO: Add Reset Functionality upon limit switch press
-    }
-    
-}
+    }  
+} 
