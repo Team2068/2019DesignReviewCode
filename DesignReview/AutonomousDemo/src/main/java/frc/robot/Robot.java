@@ -24,75 +24,8 @@ public class Robot extends IterativeRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private static final int LIFT_CAN_ID = 12;
-  //Correct Encoder Ticks to be determined through testing
-  private static final int DEFAULT_HEIGHT = 0;
-  private static final int LOW_BALL_HEIGHT = 1;
-  private static final int MIDDLE_HATCH_HEIGHT = 2;
-  private static final int MIDDLE_BALL_HEIGHT = 3;
-  private static final int HIGH_HATCH_HEIGHT = 4;
-  private static final int HIGH_BALL_HEIGHT = 5;
-  private static final int[] ENCODER_HEIGHTS = {DEFAULT_HEIGHT, LOW_BALL_HEIGHT,
-                                                  MIDDLE_HATCH_HEIGHT, MIDDLE_BALL_HEIGHT,
-                                                   HIGH_HATCH_HEIGHT, HIGH_BALL_HEIGHT};
-  private CANSparkMax liftMotor = new CanSparkMax(LIFT_CAN_ID);
-  private CANEncoder liftEncoder = liftMotor.getEncoder();
-  private int startTicks;
-  private int curTicks;
-  private int trueTicks;
-  private XboxController mechanismJoystick = new XboxController(0);
-  private boolean toggleControl = false;
-  private int curPosition = 0;
+  private CANSparkMax frontRightMotor = new CANSparkMax(12,CANSparkMaxLowLevel.motorType.kBrushless);
 
-  private void updateEncoder()
-  {
-    curTicks = liftEncoder.getPosition();
-    trueTicks = curTicks - startTicks;
-  }
-  private void resetEncoderStartTicks()
-  {
-    startTicks = 0;
-  }
-  private void liftControl()
-  {
-    if(!toggleControl)
-    {
-      liftMotor.set(mechanismJoystick.getY(GenericHID.hand.kRight));
-    }
-    else
-    {
-      if(mechanismJoystick.getYButtonPressed() && curPosition < ENCODER_HEIGHTS.length - 1)
-      {
-        curPosition++;
-      }
-      else if(mechanismJoystick.getAButonPressed() && curPosition > 0)
-      {
-        curPosition--;
-      }
-      moveTo(ENCODER_HEIGHTS[curPosition]);
-    }
-  }
-  private void moveTo(int ticks)
-  {
-    if(ticks > trueTicks)
-    {
-      while(trueTicks < ticks)
-      {
-        liftMotor.set(1);
-        updateEncoder();
-      }
-      liftMotor.set(0);
-    }
-    else
-    {
-      while(trueTicks > ticks)
-      {
-        liftMotor.set(-1);
-        updateEncoder();
-      }
-      liftMotor.set(0);
-    }
-  }
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -102,7 +35,6 @@ public class Robot extends IterativeRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-    startTicks = liftEncoder.getPosition();
   }
 
   /**
@@ -156,10 +88,7 @@ public class Robot extends IterativeRobot {
    * This function is called periodically during operator control.
    */
   @Override
-  public void teleopPeriodic() 
-  {
-    liftControl();
-    
+  public void teleopPeriodic() {
   }
 
   /**
