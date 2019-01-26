@@ -27,6 +27,7 @@ public class Robot extends IterativeRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private Solenoid firstSolenoid = new Solenoid(0);
   private Solenoid secondSolenoid = new Solenoid(1);
+  private Solenoid thirdSolenoid = new Solenoid(2);
   private XboxController joystick = new XboxController(0);
   /**
    * This function is run when the robot is first started up and should be
@@ -103,6 +104,11 @@ public class Robot extends IterativeRobot {
     {
       secondSolenoid.set(!secondSolenoid.get());
     }
+    if(joystick.getYButtonPressed())
+    {
+      thirdSolenoid.set(!thirdSolenoid.get());
+    }
+
     System.out.println("First: "+ firstSolenoid.get());
     System.out.println("Second: " + secondSolenoid.get());
   }
