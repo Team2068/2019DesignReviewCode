@@ -1,4 +1,4 @@
-/*package frc.sensors;
+package frc.sensors;
 import edu.wpi.first.wpilibj.*;
 import com.revrobotics.*;
 
@@ -18,4 +18,4 @@ public class VirtualCANEncoder extends CANEncoder {
     public void reset() {
         offset = super.getPosition();
     }
-}*/
+}
