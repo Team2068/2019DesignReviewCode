@@ -36,7 +36,11 @@ public class Lift
         }
         else if(controller.getTriggerAxis(GenericHID.Hand.kLeft) > .25)
         {
-            motor.set(controller.getTriggerAxis(GenericHID.Hand.kLeft));
+            motor.set(-controller.getTriggerAxis(GenericHID.Hand.kLeft));
+        }
+        else if(controller.getYButtonPressed())
+        {
+            resetEncoder();
         }
         else
         {
