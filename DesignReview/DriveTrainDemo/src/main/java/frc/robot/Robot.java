@@ -80,6 +80,7 @@ public class Robot extends TimedRobot {
     //frontRight.setIdleMode(IdleMode.kBrake);
     backLeft.setIdleMode(IdleMode.kBrake);
     backRight.setIdleMode(IdleMode.kBrake);
+    lift.setIdleMode(IdleMode.kBrake);
     backLeft.setInverted(true);
     
     //backRight.setInverted(true);
@@ -187,9 +188,13 @@ public class Robot extends TimedRobot {
     {
       lift.set(chassisJoystick.getTriggerAxis(GenericHID.Hand.kRight)*speedMod);
     }
-    else if(chassisJoystick.getTriggerAxis(GenericHID.Hand.kLeft)*speedMod > .25)
+    else if(chassisJoystick.getTriggerAxis(GenericHID.Hand.kLeft) > .25)
     {
-      lift.set(chassisJoystick.getTriggerAxis(GenericHID.Hand.kLeft)*speedMod);
+      lift.set(-chassisJoystick.getTriggerAxis(GenericHID.Hand.kLeft)*speedMod);
+    }
+    else
+    {
+      lift.set(0);
     }
     //System.out.println("Left: " + backLeftEncoder.getPosition() );
     //System.out.println("Right: " + backRightEncoder.getPosition());
