@@ -178,11 +178,12 @@ public class Robot extends TimedRobot {
     }
     else if(chassisJoystick.getAButtonPressed())
     {
-      backLeft.setIdleMode(IdleMode.kCoast);
+      backLeft.setIdleMode(IdleMode.kCoast);D
       backRight.setIdleMode(IdleMode.kCoast);
     }
     else if(chassisJoystick.getBButtonPressed())
     {
+      
       backLeft.setIdleMode(IdleMode.kBrake);
       backRight.setIdleMode(IdleMode.kBrake);
     }
