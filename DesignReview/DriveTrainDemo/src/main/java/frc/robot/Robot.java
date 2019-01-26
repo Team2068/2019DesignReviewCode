@@ -30,12 +30,14 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-
+  private boolean stepControl = false;
   //private CANSparkMax frontLeft = new CANSparkMax(10, MotorType.kBrushless);
   //private CANSparkMax frontRight = new CANSparkMax(11, MotorType.kBrushless);
   private CANSparkMax backLeft = new CANSparkMax(13, MotorType.kBrushless);
   private CANSparkMax backRight = new CANSparkMax(11, MotorType.kBrushless);
-  private CANSparkMax lift = new CANSparkMax(12, MotorType.kBrushless);
+  private XboxController mechanismController = new XboxController(1);
+  private Lift lift = new Lift(new CANSparkMax(12,MotorType.kBrushless), mechanismController );
+  //private CANSparkMax lift = new CANSparkMax(12, MotorType.kBrushless);
   //private CANEncoder frontLeftEncoder = frontLeft.getEncoder();
   //private CANEncoder frontRightEncoder = frontRight.getEncoder();
   private CANEncoder backLeftEncoder = backLeft.getEncoder();
@@ -80,7 +82,7 @@ public class Robot extends TimedRobot {
     //frontRight.setIdleMode(IdleMode.kBrake);
     backLeft.setIdleMode(IdleMode.kBrake);
     backRight.setIdleMode(IdleMode.kBrake);
-    lift.setIdleMode(IdleMode.kBrake);
+    
     backLeft.setInverted(true);
     
     //backRight.setInverted(true);
@@ -184,22 +186,24 @@ public class Robot extends TimedRobot {
       backLeft.setIdleMode(IdleMode.kBrake);
       backRight.setIdleMode(IdleMode.kBrake);
     }
-    if(chassisJoystick.getTriggerAxis(GenericHID.Hand.kRight) > .25)
+    if(mechanismController.getXButtonPressed())
     {
-      lift.set(chassisJoystick.getTriggerAxis(GenericHID.Hand.kRight)*speedMod);
+      stepControl = !stepControl;
     }
-    else if(chassisJoystick.getTriggerAxis(GenericHID.Hand.kLeft) > .25)
+    if(stepControl)
     {
-      lift.set(-chassisJoystick.getTriggerAxis(GenericHID.Hand.kLeft)*speedMod);
+      lift.steppingLiftControl();
     }
     else
     {
-      lift.set(0);
+      lift.baseLiftControl();
     }
+    
+    
     //System.out.println("Left: " + backLeftEncoder.getPosition() );
     //System.out.println("Right: " + backRightEncoder.getPosition());
-    System.out.println("Left: " + backLeft.getIdleMode());
-    System.out.println("Right: " + backRight.getIdleMode());
+    //System.out.println("Left: " + backLeft.getIdleMode());
+    //System.out.println("Right: " + backRight.getIdleMode());
   }
 
   /**
