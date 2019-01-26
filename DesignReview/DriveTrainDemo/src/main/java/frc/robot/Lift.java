@@ -16,7 +16,7 @@ public class Lift
     private CANEncoder encoder;
     private double trueTicks = 0;
     private double startTicks = 0;
-    private int[] encoderHeights = {0,0,0,0,0,0};
+    private double[] encoderHeights = {0,33.14,47.193,122.639,131.67,201.2,213.532};
     private int curPosition = 0;
     public Lift(CANSparkMax motor,XboxController controller)
     {
@@ -50,7 +50,7 @@ public class Lift
     }
     private void updateEncoder()
     {
-        trueTicks = encoder.getPosition() - startTicks;
+        trueTicks = startTicks - encoder.getPosition();
     }
     private void resetEncoder()
     {
@@ -66,7 +66,7 @@ public class Lift
         {
             curPosition++;
         }
-        int targetRevs = encoderHeights[curPosition];
+        double targetRevs = encoderHeights[curPosition];
         if(trueTicks < targetRevs)
         {
             
