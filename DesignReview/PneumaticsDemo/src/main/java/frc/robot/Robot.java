@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import org.junit.experimental.theories.Theories;
+
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -98,19 +100,34 @@ public class Robot extends IterativeRobot {
     if(joystick.getAButtonPressed() )
     {
       firstSolenoid.set(!firstSolenoid.get());
+      if(firstSolenoid.get())
+      {
+        thirdSolenoid.set(false);
+      }
+      
       
     }
-    if(joystick.getBButtonPressed())
+    else if(joystick.getBButtonPressed())
     {
       secondSolenoid.set(!secondSolenoid.get());
+      if(secondSolenoid.get())
+      {
+        thirdSolenoid.set(false);
+      }
     }
-    if(joystick.getYButtonPressed())
+    else if(joystick.getYButtonPressed())
     {
       thirdSolenoid.set(!thirdSolenoid.get());
+      if(thirdSolenoid.get())
+      {
+        firstSolenoid.set(false);
+        secondSolenoid.set(false);
+      }
     }
 
     System.out.println("First: "+ firstSolenoid.get());
     System.out.println("Second: " + secondSolenoid.get());
+    System.out.println("Third: " + thirdSolenoid.get());
   }
 
   /**
