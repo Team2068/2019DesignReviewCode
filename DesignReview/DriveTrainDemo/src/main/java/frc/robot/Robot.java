@@ -31,7 +31,7 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  
+  private CANSparkMax cargoIntake = new CANSparkMax(15, MotorType.kBrushed);
   private CANSparkMax frontLeft = new CANSparkMax(10, MotorType.kBrushless);
   private CANSparkMax frontRight = new CANSparkMax(11, MotorType.kBrushless);
   private CANSparkMax backLeft = new CANSparkMax(12, MotorType.kBrushless);
@@ -77,7 +77,7 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-
+    cargoIntake.setIdleMode(IdleMode.kCoast);
   
     
     
@@ -140,7 +140,14 @@ public class Robot extends TimedRobot {
     
     
       lift.steppingLiftControl();
-    
+      if(chassisJoystick.getTriggerAxis(GenericHID.Hand.kRight) >.25)
+      {
+        cargoIntake.set(chassisJoystick.getTriggerAxis(GenericHID.Hand.kRight));
+      }
+      else if(chassisJoystick.getTriggerAxis(GenericHID.Hand.kLeft) > .25)
+      {
+        cargoIntake.set(-chassisJoystick.getTriggerAxis(GenericHID.Hand.kLeft));
+      }
       
     
     
