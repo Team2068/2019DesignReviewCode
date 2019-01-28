@@ -17,10 +17,11 @@ public class Lift
     private LimitSwitch cargoSwitch;
     private double trueTicks = 0;
     private double startTicks = 0;
-    private boolean hatchMode = true;
+    private boolean hatchMode = false;
+    private boolean targetMet = false;
     
-    private double[] hatchHeights = {47.193, 131.67, 213.532};
-    private double[] cargoHeights = {33.14, 122.639, 201.2};
+    private double[] hatchHeights = {47.193, 131.67, 209.532};
+    private double[] cargoHeights = {0, 33.14, 122.639, 201.2};
     private int curPosition = 0;
     public Lift(CANSparkMax motor,XboxController controller, LimitSwitch cargoSwitch)
     {
@@ -29,6 +30,7 @@ public class Lift
         encoder = new VirtualCANEncoder(motor);
         this.cargoSwitch = cargoSwitch;
         motor.setInverted(true);
+        motor.setIdleMode(IdleMode.kBrake);
     }
     public void baseLiftControl()
     {
@@ -66,15 +68,19 @@ public class Lift
         if(controller.getAButtonPressed() && curPosition > 0)
         {
             curPosition--;
+            targetMet = false;
         }
         else if(controller.getYButtonPressed() && curPosition < selectedHeights.length-1)
         {
             curPosition++;
+            targetMet = false;
         }
         else if(controller.getXButtonPressed())
         {
 
             hatchMode = !hatchMode;
+            curPosition = 0;
+            targetMet = false;
             
         }
         if(!hatchMode && curPosition == 0)
@@ -82,27 +88,48 @@ public class Lift
             
                 if(!cargoSwitch.get())
                 {
-                    motor.set(-.75);
+                    motor.set(-1);
                 }
+                else
+                {
+                motor.set(0);
                 encoder.reset();
+                }
+                
                 
         }
-            if(encoder.getPosition() < selectedHeights[curPosition])
+            else if(-encoder.getPosition() < selectedHeights[curPosition]+5 && !targetMet)
             {
-                if(encoder.getPosition() < selectedHeights[curPosition])
+                if(-encoder.getPosition() < selectedHeights[curPosition])
                 {
                     motor.set(1);
                 }
+                else
+                {
+                    motor.set(0);
+                    targetMet = true;
+                    System.out.println("Hit Target");
+                }
             }
-            else if(encoder.getPosition() > selectedHeights[curPosition])
+            else if(-encoder.getPosition() > selectedHeights[curPosition]-5 && !targetMet)
             {
-                if(encoder.getPosition() > selectedHeights[curPosition])
+                if(-encoder.getPosition() > selectedHeights[curPosition])
                 {
                     motor.set(-1);
                 }
+                else
+                {
+                    System.out.println("Hit target");
+                    motor.set(0);
+                    targetMet = true;
+                }
             }
-            System.out.println("Target Position: " + selectedHeights[curPosition]);
-            System.out.println("Current Position: " + encoder.getPosition());
+            else 
+            {
+                motor.set(0);
+            }
+            
+            System.out.println("Target Met: " + targetMet);
             
     }  
 } 

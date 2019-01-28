@@ -31,14 +31,15 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private boolean stepControl = false;
-  private CANSparkMax frontLeft = new CANSparkMax(10, MotorType.kBrushless);
-  private CANSparkMax frontRight = new CANSparkMax(9, MotorType.kBrushless);
-  private CANSparkMax backLeft = new CANSparkMax(13, MotorType.kBrushless);
-  private CANSparkMax backRight = new CANSparkMax(11, MotorType.kBrushless);
-  private XboxController mechanismController = new XboxController(1);
-  private Lift lift = new Lift(new CANSparkMax(12,MotorType.kBrushless), mechanismController, new LimitSwitch(0));
   
+  private CANSparkMax frontLeft = new CANSparkMax(10, MotorType.kBrushless);
+  private CANSparkMax frontRight = new CANSparkMax(11, MotorType.kBrushless);
+  private CANSparkMax backLeft = new CANSparkMax(12, MotorType.kBrushless);
+  private CANSparkMax backRight = new CANSparkMax(13, MotorType.kBrushless);
+  private XboxController chassisJoystick = new XboxController(0);
+  private XboxController mechanismController = new XboxController(1);
+  private Lift lift = new Lift(new CANSparkMax(14,MotorType.kBrushless), mechanismController, new LimitSwitch(0));
+  private DriveTrain chassis = new DriveTrain(frontRight, backRight, frontLeft, backLeft, chassisJoystick );
   //private CANEncoder frontLeftEncoder = frontLeft.getEncoder();
   //private CANEncoder frontRightEncoder = frontRight.getEncoder();
   private CANEncoder backLeftEncoder = backLeft.getEncoder();
@@ -49,9 +50,10 @@ public class Robot extends TimedRobot {
   private double leftAverageTrue = 0;
   private double speedMod = .1;
   private int directionMod = 1;
+  private boolean metTarget = false;
   
 
-  private XboxController chassisJoystick = new XboxController(0);
+  
   private void updateEncoders()
   {
     double leftCur = backLeftEncoder.getPosition(); 
@@ -76,13 +78,9 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    frontLeft.setIdleMode(IdleMode.kBrake);
-    frontRight.setIdleMode(IdleMode.kBrake);
-    backLeft.setIdleMode(IdleMode.kBrake);
-    backRight.setIdleMode(IdleMode.kBrake);
+  
     
-    backLeft.setInverted(true);
-    frontLeft.setInverted(true);
+    
     
     
 
@@ -127,28 +125,7 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() 
     {
         double targetRevs = 32.286;
-        resetEncoders();
-        while(leftAverageTrue < targetRevs || rightAverageTrue < targetRevs)
-        {
-          if(leftAverageTrue < targetRevs)
-          {
-            //frontLeft.set(.75);
-            backLeft.set(-.5);
-          }
-          if(rightAverageTrue < targetRevs)
-          {
-            backRight.set(.5);
-          }
-          updateEncoders();
-        }
-        //frontLeft.set(0);
-        backLeft.set(0);
-        //frontRight.set(0);
-        backRight.set(0);
-        while(DriverStation.getInstance().isAutonomous())
-        {
-          chassisJoystick.setRumble(GenericHID.RumbleType.kLeftRumble,1);
-        }
+        chassis.autoDrive(1, 1, targetRevs, targetRevs);
     
     }
   
@@ -159,45 +136,13 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     //chassis.tankDrive(chassisJoystick.getY(Hand.kLeft), chassisJoystick.getY(Hand.kLeft), true);
-    backLeft.set(chassisJoystick.getY(GenericHID.Hand.kLeft)*speedMod*directionMod);
-    frontLeft.set(chassisJoystick.getY(GenericHID.Hand.kLeft)*speedMod*directionMod);
-    frontRight.set(chassisJoystick.getY(GenericHID.Hand.kRight)*speedMod*directionMod);
-    backRight.set(chassisJoystick.getY(GenericHID.Hand.kRight)*speedMod*directionMod);
-    if(chassisJoystick.getBumperPressed(GenericHID.Hand.kRight) && speedMod < 1)
-    {
-      speedMod+= .1;
-    }
-    else if(chassisJoystick.getBumperPressed(GenericHID.Hand.kLeft) && speedMod > 0)
-    {
-      speedMod-= .1;
-    }
-    else if(chassisJoystick.getXButtonPressed())
-    {
-      directionMod = directionMod*-1;
-    }
-    else if(chassisJoystick.getAButtonPressed())
-    {
-      backLeft.setIdleMode(IdleMode.kCoast);
-      backRight.setIdleMode(IdleMode.kCoast);
-    }
-    else if(chassisJoystick.getBButtonPressed())
-    {
-      
-      backLeft.setIdleMode(IdleMode.kBrake);
-      backRight.setIdleMode(IdleMode.kBrake);
-    }
-    if(mechanismController.getXButtonPressed())
-    {
-      stepControl = !stepControl;
-    }
-    if(stepControl)
-    {
+    chassis.baseDrive();
+    
+    
       lift.steppingLiftControl();
-    }
-    else
-    {
-      lift.baseLiftControl();
-    }
+    
+      
+    
     
     
     
