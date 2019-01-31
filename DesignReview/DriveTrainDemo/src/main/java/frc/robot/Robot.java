@@ -31,14 +31,15 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private CANSparkMax cargoIntake = new CANSparkMax(15, MotorType.kBrushed);
-  private CANSparkMax frontLeft = new CANSparkMax(10, MotorType.kBrushless);
-  private CANSparkMax frontRight = new CANSparkMax(11, MotorType.kBrushless);
-  private CANSparkMax backLeft = new CANSparkMax(12, MotorType.kBrushless);
-  private CANSparkMax backRight = new CANSparkMax(13, MotorType.kBrushless);
+  private CANSparkMax cargoIntake = new CANSparkMax(4, MotorType.kBrushed);
+  private CANSparkMax frontLeft = new CANSparkMax(6, MotorType.kBrushless);
+  private CANSparkMax frontRight = new CANSparkMax(2, MotorType.kBrushless);
+  private CANSparkMax backLeft = new CANSparkMax(5, MotorType.kBrushless);
+  private CANSparkMax backRight = new CANSparkMax(1, MotorType.kBrushless);
+  private CANSparkMax drawBridge = new CANSparkMax(3, MotorType.kBrushless);
   private XboxController chassisJoystick = new XboxController(0);
   private XboxController mechanismController = new XboxController(1);
-  private Lift lift = new Lift(new CANSparkMax(14,MotorType.kBrushless), mechanismController, new LimitSwitch(0));
+  private Lift lift = new Lift(new CANSparkMax(0,MotorType.kBrushless), mechanismController, new LimitSwitch(0));
   private DriveTrain chassis = new DriveTrain(frontRight, backRight, frontLeft, backLeft, chassisJoystick );
   //private CANEncoder frontLeftEncoder = frontLeft.getEncoder();
   //private CANEncoder frontRightEncoder = frontRight.getEncoder();
@@ -78,6 +79,7 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
     cargoIntake.setIdleMode(IdleMode.kCoast);
+    drawBridge.setIdleMode(IdleMode.kBrake);
   
     
     
@@ -148,9 +150,16 @@ public class Robot extends TimedRobot {
       {
         cargoIntake.set(-chassisJoystick.getTriggerAxis(GenericHID.Hand.kLeft));
       }
-      
+     
     
-    
+      if(mechanismController.getY(GenericHID.Hand.kRight) > .5)
+      {
+        drawBridge.set(mechanismController.getY(GenericHID.Hand.kRight));
+      }
+      else if(mechanismController.getY(Hand.kRight) < -0.5)
+      {
+        drawBridge.set(mechanismController.getY(Hand.kRight));
+      }
     
     
   }
