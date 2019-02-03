@@ -37,12 +37,13 @@ public class Robot extends TimedRobot {
   private CANSparkMax backLeft = new CANSparkMax(5, MotorType.kBrushless);
   private CANSparkMax backRight = new CANSparkMax(1, MotorType.kBrushless);
   private CANSparkMax drawBridge = new CANSparkMax(3, MotorType.kBrushless);
+  private CANSparkMax liftMotor = new CANSparkMax(0, MotorType.kBrushless);
   private XboxController chassisJoystick = new XboxController(0);
   private XboxController mechanismController = new XboxController(1);
-  private Lift lift = new Lift(new CANSparkMax(0,MotorType.kBrushless), mechanismController, new LimitSwitch(0));
+  private Lift lift = new Lift(liftMotor, mechanismController, new LimitSwitch(0));
   private DriveTrain chassis = new DriveTrain(frontRight, backRight, frontLeft, backLeft, chassisJoystick );
-  //private CANEncoder frontLeftEncoder = frontLeft.getEncoder();
-  //private CANEncoder frontRightEncoder = frontRight.getEncoder();
+  private CANEncoder frontLeftEncoder = frontLeft.getEncoder();//
+  private CANEncoder frontRightEncoder = frontRight.getEncoder();//
   private CANEncoder backLeftEncoder = backLeft.getEncoder();
   private CANEncoder backRightEncoder = backRight.getEncoder();
   private double rightAverageStart = backRightEncoder.getPosition(); 
@@ -52,6 +53,8 @@ public class Robot extends TimedRobot {
   private double speedMod = .1;
   private int directionMod = 1;
   private boolean metTarget = false;
+  private LimitSwitch cargoSwitch = new LimitSwitch(1);
+  private LimitSwitch drawbridgeSwitch = new LimitSwitch(2);
   
 
   
@@ -142,23 +145,27 @@ public class Robot extends TimedRobot {
     
     
       lift.steppingLiftControl();
-      if(chassisJoystick.getTriggerAxis(GenericHID.Hand.kRight) >.25)
+      if(mechanismController.getTriggerAxis(GenericHID.Hand.kRight) >.25)
       {
-        cargoIntake.set(chassisJoystick.getTriggerAxis(GenericHID.Hand.kRight));
+        cargoIntake.set(mechanismController.getTriggerAxis(GenericHID.Hand.kRight));
       }
-      else if(chassisJoystick.getTriggerAxis(GenericHID.Hand.kLeft) > .25)
+      else if(mechanismController.getTriggerAxis(GenericHID.Hand.kLeft) > .25 && !cargoSwitch.get())
       {
-        cargoIntake.set(-chassisJoystick.getTriggerAxis(GenericHID.Hand.kLeft));
+        cargoIntake.set(-mechanismController.getTriggerAxis(GenericHID.Hand.kLeft));
       }
      
     
-      if(mechanismController.getY(GenericHID.Hand.kRight) > .5)
+      if(mechanismController.getY(GenericHID.Hand.kRight) > .75 && !drawbridgeSwitch.get())
       {
-        drawBridge.set(mechanismController.getY(GenericHID.Hand.kRight));
+        drawBridge.set(mechanismController.getY(GenericHID.Hand.kRight) /4);
       }
-      else if(mechanismController.getY(Hand.kRight) < -0.5)
+      else if(mechanismController.getY(Hand.kRight) < -0.75 )
       {
-        drawBridge.set(mechanismController.getY(Hand.kRight));
+        drawBridge.set(mechanismController.getY(Hand.kRight) /4);
+      }
+      else
+      {
+        drawBridge.set(0);
       }
     
     
