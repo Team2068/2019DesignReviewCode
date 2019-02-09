@@ -17,6 +17,10 @@ public class DriveTrain
   private XboxController controller;
   private VirtualCANEncoder leftEncoder, rightEncoder;
   private double speedMod = .5;
+  private double speedMod2 = 1;
+  private double speedMod3 = .5;
+  private boolean POVPressed = false;
+
   public DriveTrain(CANSparkMax frontRight, CANSparkMax backRight, CANSparkMax frontLeft, CANSparkMax backLeft , XboxController controller)
   {
     this.frontRight = frontRight;
@@ -42,13 +46,21 @@ public class DriveTrain
   }
   public void baseDrive()
   {
+      if(controller.getBumperPressed(GenericHID.Hand.kRight) && controller.getBumperPressed(GenericHID.Hand.kLeft))
+      {
+          speedMod3 = 1;
+      }
+      else
+      {
+         speedMod3 = .5;    
+      }
       if(Math.abs(controller.getY(Hand.kLeft)) > .2 || Math.abs(controller.getY(Hand.kRight)) > .2)
       {
-      frontLeft.set(-controller.getY(GenericHID.Hand.kLeft) * speedMod);
-      backLeft.set(-controller.getY(GenericHID.Hand.kLeft) * speedMod);
-      frontRight.set(-controller.getY(GenericHID.Hand.kRight) * speedMod);
-      backRight.set(-controller.getY(GenericHID.Hand.kRight) * speedMod);
-      }
+      frontLeft.set(-controller.getY(GenericHID.Hand.kLeft) * speedMod * speedMod2 * speedMod3);
+      backLeft.set(-controller.getY(GenericHID.Hand.kLeft) * speedMod * speedMod2 * speedMod3);
+      frontRight.set(-controller.getY(GenericHID.Hand.kRight) * speedMod * speedMod2 * speedMod3);
+      backRight.set(-controller.getY(GenericHID.Hand.kRight) * speedMod * speedMod2 * speedMod3);
+      } 
       else
       {
           frontLeft.set(0);
@@ -83,16 +95,30 @@ public class DriveTrain
   }
   public void speedModAdjust()
   {
-      if(controller.getBumperPressed(GenericHID.Hand.kRight) && speedMod > .2)
+      if(!POVPressed && controller.getPOV(0) > -1)
       {
-          speedMod-= .1;
+        if(controller.getPOV(0) == 0 && speedMod < .99)
+        {
+            speedMod+= .1;
+            POVPressed = true;
+        }
+        else if(controller.getPOV(0) == 180 && speedMod > .01)
+        {
+            speedMod-= .1;
+            POVPressed = true;
+        }
+        
       }
-      else if(controller.getBumperPressed(GenericHID.Hand.kLeft) && speedMod < .8)
+      else if(POVPressed && controller.getPOV(0) == -1)
       {
-          speedMod += .1;
+          POVPressed = false;
       }
       //System.out.println(speedMod);
 
+  }
+  public void setSpeedMod2(double speedMod)
+  {
+        this.speedMod2 = speedMod;
   }
   public void resetEncoders()
   {
