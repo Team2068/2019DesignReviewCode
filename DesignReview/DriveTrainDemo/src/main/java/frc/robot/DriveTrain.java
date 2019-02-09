@@ -28,12 +28,12 @@ public class DriveTrain
     this.rightDistance = rightDistance;
     this.leftDistance = leftDistance;
     this.controller = controller;
-    frontLeft.setInverted(true);
-    backLeft.setInverted(true);
+    frontRight.setInverted(true);
+    backRight.setInverted(true);
     leftEncoder = new VirtualCANEncoder(frontLeft);
     rightEncoder = new VirtualCANEncoder(frontRight);
-    backRight.follow(frontRight);
-    backLeft.follow(frontLeft);
+    //backRight.follow(frontRight);
+    //backLeft.follow(frontLeft);
     frontRight.setMotorType(MotorType.kBrushless);
     frontLeft.setMotorType(MotorType.kBrushless);
     backRight.setMotorType(MotorType.kBrushless);
@@ -42,8 +42,24 @@ public class DriveTrain
   }
   public void baseDrive()
   {
-      frontLeft.set(controller.getY(GenericHID.Hand.kLeft) * speedMod);
-      frontRight.set(controller.getY(GenericHID.Hand.kRight) * speedMod);
+      if(Math.abs(controller.getY(Hand.kLeft)) > .2 || Math.abs(controller.getY(Hand.kRight)) > .2)
+      {
+      frontLeft.set(-controller.getY(GenericHID.Hand.kLeft) * speedMod);
+      backLeft.set(-controller.getY(GenericHID.Hand.kLeft) * speedMod);
+      frontRight.set(-controller.getY(GenericHID.Hand.kRight) * speedMod);
+      backRight.set(-controller.getY(GenericHID.Hand.kRight) * speedMod);
+      }
+      else
+      {
+          frontLeft.set(0);
+          backLeft.set(0);
+          frontRight.set(0);
+          backRight.set(0);
+      }
+      //System.out.println("Front Right: " + frontRight.get());
+      //System.out.println("Back Right: " + backRight.get());
+      //System.out.println("Front Left: " + frontLeft.get());
+      //System.out.println("BackLeft: " + backLeft.get());
       speedModAdjust();
       brakeSystemAdjust();
 
@@ -67,14 +83,15 @@ public class DriveTrain
   }
   public void speedModAdjust()
   {
-      if(controller.getBumperPressed(GenericHID.Hand.kRight) && speedMod < 1)
+      if(controller.getBumperPressed(GenericHID.Hand.kRight) && speedMod > .2)
       {
           speedMod-= .1;
       }
-      else if(controller.getBumperPressed(GenericHID.Hand.kLeft) && speedMod > 0)
+      else if(controller.getBumperPressed(GenericHID.Hand.kLeft) && speedMod < .8)
       {
           speedMod += .1;
       }
+      //System.out.println(speedMod);
 
   }
   public void resetEncoders()

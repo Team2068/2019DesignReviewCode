@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -34,7 +35,7 @@ public class Robot extends TimedRobot {
   private CANSparkMax cargoIntake = new CANSparkMax(4, MotorType.kBrushed);
   private CANSparkMax frontLeft = new CANSparkMax(6, MotorType.kBrushless);
   private CANSparkMax frontRight = new CANSparkMax(2, MotorType.kBrushless);
-  private CANSparkMax backLeft = new CANSparkMax(5, MotorType.kBrushless);
+  private CANSparkMax backLeft = new CANSparkMax(7, MotorType.kBrushless);
   private CANSparkMax backRight = new CANSparkMax(1, MotorType.kBrushless);
   private CANSparkMax drawBridge = new CANSparkMax(3, MotorType.kBrushless);
   private CANSparkMax liftMotor = new CANSparkMax(0, MotorType.kBrushless);
@@ -55,7 +56,12 @@ public class Robot extends TimedRobot {
   private boolean metTarget = false;
   private LimitSwitch cargoSwitch = new LimitSwitch(1);
   private LimitSwitch drawbridgeSwitch = new LimitSwitch(2);
-  
+  private Solenoid suction1 = new Solenoid(0);
+  private Solenoid suction2 = new Solenoid(1);
+  private Solenoid airOutake = new Solenoid(2);
+  private DoubleSolenoid hatchPiston = new DoubleSolenoid(3,4);
+  private PneumaticsControl hatchIntake = new PneumaticsControl(suction1, suction2, airOutake, hatchPiston);
+  private boolean hasHatch = false;
 
   
   private void updateEncoders()
@@ -149,13 +155,17 @@ public class Robot extends TimedRobot {
       {
         cargoIntake.set(mechanismController.getTriggerAxis(GenericHID.Hand.kRight));
       }
-      else if(mechanismController.getTriggerAxis(GenericHID.Hand.kLeft) > .25 && !cargoSwitch.get())
+      else if(mechanismController.getTriggerAxis(GenericHID.Hand.kLeft) > .25)// && !cargoSwitch.get())
       {
         cargoIntake.set(-mechanismController.getTriggerAxis(GenericHID.Hand.kLeft));
       }
+      else
+      {
+        cargoIntake.set(0);
+      }
      
     
-      if(mechanismController.getY(GenericHID.Hand.kRight) > .75 && !drawbridgeSwitch.get())
+      if(mechanismController.getY(GenericHID.Hand.kRight) > .75)// && !drawbridgeSwitch.get())
       {
         drawBridge.set(mechanismController.getY(GenericHID.Hand.kRight) /4);
       }
@@ -166,6 +176,19 @@ public class Robot extends TimedRobot {
       else
       {
         drawBridge.set(0);
+      }
+      if(mechanismController.getBButtonPressed())
+      {
+        if(hasHatch)
+        {
+          hatchIntake.outakeHatch();
+          //mechanismController.setRumble(RumbleType.kRightRumble, 1);
+        }
+        else
+        {
+          hatchIntake.intakeHatch();
+          
+        }
       }
     
     

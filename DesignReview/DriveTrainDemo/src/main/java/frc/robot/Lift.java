@@ -20,7 +20,7 @@ public class Lift
     private boolean hatchMode = false;
     private boolean targetMet = false;
     
-    private double[] hatchHeights = {47.193, 131.67, 209.532};
+    private double[] hatchHeights = {0, 47.193, 131.67, 209.532};
     private double[] cargoHeights = {0, 33.14, 122.639, 201.2};
     private int curPosition = 0;
     public Lift(CANSparkMax motor,XboxController controller, LimitSwitch cargoSwitch)
@@ -81,20 +81,24 @@ public class Lift
             hatchMode = !hatchMode;
             curPosition = 0;
             targetMet = false;
+            while(!cargoSwitch.get())
+            {
+                motor.set(-.85);
+            }
+            motor.set(0);
             
         }
-        if(!hatchMode && curPosition == 0)
+        if( curPosition == 0)
         {
             
-                if(!cargoSwitch.get())
+                while(!cargoSwitch.get())
                 {
-                    motor.set(-1);
+                    motor.set(-.85);
                 }
-                else
-                {
+               
                 motor.set(0);
                 encoder.reset();
-                }
+                
                 
                 
         }
@@ -102,7 +106,7 @@ public class Lift
             {
                 if(-encoder.getPosition() < selectedHeights[curPosition])
                 {
-                    motor.set(1);
+                    motor.set(.85);
                 }
                 else
                 {
@@ -115,7 +119,7 @@ public class Lift
             {
                 if(-encoder.getPosition() > selectedHeights[curPosition])
                 {
-                    motor.set(-1);
+                    motor.set(-.85);
                 }
                 else
                 {
@@ -128,8 +132,10 @@ public class Lift
             {
                 motor.set(0);
             }
-            
+            //System.out.println(curPosition);
             System.out.println("Target Met: " + targetMet);
+            System.out.println(cargoSwitch.get());
             
     }  
+    
 } 
