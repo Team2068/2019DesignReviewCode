@@ -83,7 +83,7 @@ public class Lift
             targetMet = false;
             while(!cargoSwitch.get())
             {
-                motor.set(-.85);
+                motor.set(-1);
             }
             motor.set(0);
             
@@ -93,7 +93,7 @@ public class Lift
             
                 while(!cargoSwitch.get())
                 {
-                    motor.set(-.85);
+                    motor.set(-1);
                 }
                
                 motor.set(0);
@@ -106,7 +106,7 @@ public class Lift
             {
                 if(-encoder.getPosition() < selectedHeights[curPosition])
                 {
-                    motor.set(.85);
+                    motor.set(1);
                 }
                 else
                 {
@@ -119,7 +119,7 @@ public class Lift
             {
                 if(-encoder.getPosition() > selectedHeights[curPosition])
                 {
-                    motor.set(-.85);
+                    motor.set(-1);
                 }
                 else
                 {

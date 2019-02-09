@@ -148,7 +148,14 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     //chassis.tankDrive(chassisJoystick.getY(Hand.kLeft), chassisJoystick.getY(Hand.kLeft), true);
     chassis.baseDrive();
-    
+    if(lift.isRaised())
+    {
+      chassis.setSpeedMod2(.2);
+    }
+    else
+    {
+      chassis.setSpeedMod2(1);
+    }
     
       lift.steppingLiftControl();
       if(mechanismController.getTriggerAxis(GenericHID.Hand.kRight) >.25)
