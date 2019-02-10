@@ -73,7 +73,17 @@ public class PneumaticsControl
             airOutake.set(false);
         }
     }
-    
+    public void pistonControl(boolean forward)
+    {
+        if(forward)
+        {
+            piston.set(DoubleSolenoid.Value.kForward);
+        }
+        else
+        {
+            piston.set(DoubleSolenoid.Value.kReverse);
+        }
+    }
     public void outakeHatch()
     {
         piston.set(DoubleSolenoid.Value.kForward);

@@ -212,7 +212,7 @@ public class Robot extends TimedRobot {
   public void testPeriodic() 
   {
     
-    if(mechanismController.getBButton())
+    if(mechanismController.getBButton() && !testFlag)
     {
       hatchIntake.testOpenClose(true);
       testFlag = true;
@@ -221,6 +221,14 @@ public class Robot extends TimedRobot {
     {
         hatchIntake.testOpenClose(false);
         testFlag = false;
+    }
+    if(mechanismController.getXButtonPressed())
+    {
+        hatchIntake.pistonControl(false);
+    }
+    else if(mechanismController.getAButtonPressed())
+    {
+        hatchIntake.pistonControl(true);
     }
     
   }
