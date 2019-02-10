@@ -137,5 +137,16 @@ public class Lift
             System.out.println(cargoSwitch.get());
             
     }  
+    public boolean isRaised()
+    {
+        if(curPosition > 1)
+        {
+            return(true);
+        }
+        else
+        {
+            return(false);   
+        }
+    }
     
 } 

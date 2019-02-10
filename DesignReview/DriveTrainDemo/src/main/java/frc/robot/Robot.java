@@ -60,7 +60,8 @@ public class Robot extends TimedRobot {
   private Solenoid suction2 = new Solenoid(1);
   private Solenoid airOutake = new Solenoid(2);
   private DoubleSolenoid hatchPiston = new DoubleSolenoid(3,4);
-  private PneumaticsControl hatchIntake = new PneumaticsControl(suction1, suction2, airOutake, hatchPiston);
+  private Solenoid vacuumControl = new Solenoid(5);
+  private PneumaticsControl hatchIntake = new PneumaticsControl(suction1, suction2, airOutake, vacuumControl, hatchPiston);
   private boolean hasHatch = false;
 
   
@@ -184,7 +185,7 @@ public class Robot extends TimedRobot {
       {
         drawBridge.set(0);
       }
-      if(mechanismController.getBButtonPressed())
+      if(mechanismController.getBButtonPressed() && drawbridgeSwitch.get() == false)
       {
         if(hasHatch)
         {

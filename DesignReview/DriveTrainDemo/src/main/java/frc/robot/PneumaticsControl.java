@@ -11,16 +11,19 @@ import edu.wpi.first.wpilibj.drive.*;
 import frc.sensors.*;
 public class PneumaticsControl
 {
-    Solenoid suction1, suction2, airOutake;
+    Solenoid suction1, suction2, airOutake, vacuumControl;
     DoubleSolenoid piston;
     Timer timer1 = new Timer();
-    public PneumaticsControl(Solenoid suction1, Solenoid suction2, Solenoid airOutake, DoubleSolenoid piston )
+    public PneumaticsControl(Solenoid suction1, Solenoid suction2, Solenoid airOutake, Solenoid vacuumControl,  DoubleSolenoid piston )
+    
     {
         this.suction1 = suction1;
         this.suction2 = suction2;
-        
+        this.vacuumControl = vacuumControl;
         this.airOutake = airOutake;
         this.piston = piston;
+
+        
     
     }
 
@@ -38,6 +41,7 @@ public class PneumaticsControl
     {
         suction1.set(on);
         suction2.set(on);
+        vacuumControl.set(on);
     }
     public void intakeHatch()
     {
