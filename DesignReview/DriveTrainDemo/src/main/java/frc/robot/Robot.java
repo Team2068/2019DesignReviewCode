@@ -56,11 +56,11 @@ public class Robot extends TimedRobot {
   private boolean metTarget = false;
   private LimitSwitch cargoSwitch = new LimitSwitch(1);
   private LimitSwitch drawbridgeSwitch = new LimitSwitch(2);
-  private Solenoid suction1 = new Solenoid(0);
-  private Solenoid suction2 = new Solenoid(1);
+  private Solenoid suction1 = new Solenoid(3);
+  private Solenoid suction2 = new Solenoid(4);
   private Solenoid airOutake = new Solenoid(2);
-  private DoubleSolenoid hatchPiston = new DoubleSolenoid(3,4);
-  private Solenoid vacuumControl = new Solenoid(5);
+  private DoubleSolenoid hatchPiston = new DoubleSolenoid(0,1);
+  //private Solenoid vacuumControl = new Solenoid(5);
   private PneumaticsControl hatchIntake = new PneumaticsControl(suction1, suction2, airOutake, hatchPiston);
   private boolean hasHatch = false;
   private boolean testFlag = false;
