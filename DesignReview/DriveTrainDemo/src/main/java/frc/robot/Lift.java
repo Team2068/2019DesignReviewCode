@@ -136,7 +136,37 @@ public class Lift
             System.out.println("Target Met: " + targetMet);
             System.out.println(cargoSwitch.get());
             
-    }  
+    } 
+    public void calibrateSensors()
+    {
+        encoder.reset();
+        int counter = 0;
+        while(counter < hatchHeights.length)
+        {
+            motor.set(controller.getY(GenericHID.Hand.kRight)* .25);
+            if(controller.getBButtonPressed())
+            {
+                hatchHeights[counter] = encoder.getPosition();
+                counter++;
+            }
+        }
+        while(!cargoSwitch.get())
+        {
+            motor.set(-.5);
+        }
+        encoder.reset();
+        counter = 0;
+        while(counter < cargoHeights.length)
+        {
+            motor.set(controller.getY(GenericHID.Hand.kRight)* .25);
+            if(controller.getBButtonPressed())
+            {
+                cargoHeights[counter] = encoder.getPosition();
+                counter++;
+            } 
+        }
+        
+    } 
     public boolean isRaised()
     {
         if(curPosition > 1)

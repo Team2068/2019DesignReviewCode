@@ -61,8 +61,10 @@ public class Robot extends TimedRobot {
   private Solenoid airOutake = new Solenoid(2);
   private DoubleSolenoid hatchPiston = new DoubleSolenoid(3,4);
   private Solenoid vacuumControl = new Solenoid(5);
-  private PneumaticsControl hatchIntake = new PneumaticsControl(suction1, suction2, airOutake, vacuumControl, hatchPiston);
+  private PneumaticsControl hatchIntake = new PneumaticsControl(suction1, suction2, airOutake, hatchPiston);
   private boolean hasHatch = false;
+  private boolean testFlag = false;
+  
 
   
   private void updateEncoders()
@@ -198,6 +200,7 @@ public class Robot extends TimedRobot {
           
         }
       }
+      
     
     
   }
@@ -206,7 +209,20 @@ public class Robot extends TimedRobot {
    * This function is called periodically during test mode.
    */
   @Override
-  public void testPeriodic() {
+  public void testPeriodic() 
+  {
+    
+    if(mechanismController.getBButton())
+    {
+      hatchIntake.testOpenClose(true);
+      testFlag = true;
+    }
+    else if(!mechanismController.getBButton() && testFlag)
+    {
+        hatchIntake.testOpenClose(false);
+        testFlag = false;
+    }
+    
   }
 }
     
