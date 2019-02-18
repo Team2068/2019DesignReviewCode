@@ -1,4 +1,4 @@
-package frc.sensors;
+package frc.sensors.i2c;
 
 import edu.wpi.first.wpilibj.I2C;
 import java.nio.ByteBuffer;
