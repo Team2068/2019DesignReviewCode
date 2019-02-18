@@ -16,7 +16,7 @@ public class DriveTrain
   private I2CColorSensor rightColor, leftColor, rightDistance, leftDistance;
   private XboxController controller;
   private VirtualCANEncoder leftEncoder, rightEncoder;
-  private double speedMod = .5;
+  private double speedMod = 1;
   private double speedMod2 = 1;
   private double speedMod3 = .5;
   private boolean POVPressed = false;
@@ -32,8 +32,8 @@ public class DriveTrain
     this.rightDistance = rightDistance;
     this.leftDistance = leftDistance;
     this.controller = controller;
-    frontRight.setInverted(true);
-    backRight.setInverted(true);
+    //frontRight.setInverted(true);
+    //backRight.setInverted(true);
     leftEncoder = new VirtualCANEncoder(frontLeft);
     rightEncoder = new VirtualCANEncoder(frontRight);
     //backRight.follow(frontRight);
@@ -141,5 +141,16 @@ public class DriveTrain
       }
       frontLeft.set(0);
       frontRight.set(0);
+  }
+  public void displayValues()
+  {
+      SmartDashboard.putNumber("Front Right", frontRight.get());
+      SmartDashboard.putNumber("Back Right", backRight.get());
+      SmartDashboard.putNumber("Front Left", frontLeft.get());
+      SmartDashboard.putNumber("Back Left", backLeft.get());
+      SmartDashboard.putNumber("Speed Mod 1", speedMod);
+      SmartDashboard.putNumber("Speed Mod 2", speedMod2);
+      SmartDashboard.putNumber("Speed Mod 3", speedMod3);
+     
   }
 }
