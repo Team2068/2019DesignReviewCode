@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -30,17 +31,21 @@ public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private boolean stepControl = false;
-  private CANSparkMax frontLeft = new CANSparkMax(10, MotorType.kBrushless);
-  private CANSparkMax frontRight = new CANSparkMax(9, MotorType.kBrushless);
-  private CANSparkMax backLeft = new CANSparkMax(13, MotorType.kBrushless);
-  private CANSparkMax backRight = new CANSparkMax(11, MotorType.kBrushless);
-  private XboxController mechanismController = new XboxController(1);
-  private Lift lift = new Lift(new CANSparkMax(12,MotorType.kBrushless), mechanismController, new LimitSwitch(0));
   
-  //private CANEncoder frontLeftEncoder = frontLeft.getEncoder();
-  //private CANEncoder frontRightEncoder = frontRight.getEncoder();
+  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private CANSparkMax cargoIntake = new CANSparkMax(6, MotorType.kBrushed);
+  private CANSparkMax frontLeft = new CANSparkMax(8, MotorType.kBrushless);
+  private CANSparkMax frontRight = new CANSparkMax(1, MotorType.kBrushless);
+  private CANSparkMax backLeft = new CANSparkMax(7, MotorType.kBrushless);
+  private CANSparkMax backRight = new CANSparkMax(2, MotorType.kBrushless);
+  private CANSparkMax drawBridge = new CANSparkMax(3, MotorType.kBrushless);
+  private CANSparkMax liftMotor = new CANSparkMax(4, MotorType.kBrushless);
+  private XboxController chassisJoystick = new XboxController(0);
+  private XboxController mechanismController = new XboxController(1);
+  private Lift lift = new Lift(liftMotor, mechanismController, new LimitSwitch(3));
+  private DriveTrain chassis = new DriveTrain(frontRight, backRight, frontLeft, backLeft, chassisJoystick );
+  private CANEncoder frontLeftEncoder = frontLeft.getEncoder();//
+  private CANEncoder frontRightEncoder = frontRight.getEncoder();//
   private CANEncoder backLeftEncoder = backLeft.getEncoder();
   private CANEncoder backRightEncoder = backRight.getEncoder();
   private double rightAverageStart = backRightEncoder.getPosition(); 
@@ -49,15 +54,27 @@ public class Robot extends TimedRobot {
   private double leftAverageTrue = 0;
   private double speedMod = .1;
   private int directionMod = 1;
+  private boolean metTarget = false;
+  private LimitSwitch cargoSwitch = new LimitSwitch(1);
+  private LimitSwitch drawbridgeSwitch = new LimitSwitch(0);
+  private Solenoid suction1 = new Solenoid(3);
+  private Solenoid suction2 = new Solenoid(4);
+  private Solenoid airOutake = new Solenoid(2);
+  private DoubleSolenoid hatchPiston = new DoubleSolenoid(0,1);
+  //private Solenoid vacuumControl = new Solenoid(5);
+  private PneumaticsControl hatchIntake = new PneumaticsControl(suction1, suction2, airOutake, hatchPiston, mechanismController);
+  private boolean hasHatch = false;
+  private boolean testFlag = false;
   
 
-  private XboxController chassisJoystick = new XboxController(0);
+  
   private void updateEncoders()
   {
     double leftCur = backLeftEncoder.getPosition(); 
     double rightCur = backRightEncoder.getPosition(); 
     rightAverageTrue = -(rightCur - rightAverageStart);
     leftAverageTrue = (leftCur - leftAverageStart);
+    
     System.out.println("Left Side: " + leftAverageTrue);
     System.out.println("Right SIde: " +rightAverageTrue);
   }
@@ -75,14 +92,25 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-
-    frontLeft.setIdleMode(IdleMode.kBrake);
+    cargoIntake.setIdleMode(IdleMode.kCoast);
+    drawBridge.setIdleMode(IdleMode.kBrake);
+    frontRight.setMotorType(MotorType.kBrushless);
+    frontLeft.setMotorType(MotorType.kBrushless);
+    backRight.setMotorType(MotorType.kBrushless);
+    backLeft.setMotorType(MotorType.kBrushless);
+    liftMotor.setMotorType(MotorType.kBrushless);
+    drawBridge.setMotorType(MotorType.kBrushless);
+    cargoIntake.setMotorType(MotorType.kBrushed);
     frontRight.setIdleMode(IdleMode.kBrake);
-    backLeft.setIdleMode(IdleMode.kBrake);
+    frontLeft.setIdleMode(IdleMode.kBrake);
     backRight.setIdleMode(IdleMode.kBrake);
-    
-    backLeft.setInverted(true);
+    backLeft.setIdleMode(IdleMode.kBrake);
     frontLeft.setInverted(true);
+    backLeft.setInverted(true);
+    frontRight.setInverted(false);
+    backRight.setInverted(false);
+    hatchPiston.set(DoubleSolenoid.Value.kReverse);
+
     
     
 
@@ -97,7 +125,16 @@ public class Robot extends TimedRobot {
    * LiveWindow and SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {
+  public void robotPeriodic()
+  {
+    hatchIntake.displayPositions();
+    lift.displayValues();
+    chassis.displayValues();
+    SmartDashboard.putBoolean("Cargo Switch", cargoSwitch.get());
+    SmartDashboard.putBoolean("Drawbridge Switch", drawbridgeSwitch.get());
+    SmartDashboard.putNumber("Drawbridge Motor", drawBridge.get());
+    SmartDashboard.putNumber("Cargo Intake Motor", cargoIntake.get());
+
   }
 
   /**
@@ -117,7 +154,7 @@ public class Robot extends TimedRobot {
     // autoSelected = SmartDashboard.getString("Auto Selector",
     // defaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-    backRight.setInverted(false);
+    //backRight.setInverted(false);
   }
 
   /**
@@ -127,28 +164,7 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() 
     {
         double targetRevs = 32.286;
-        resetEncoders();
-        while(leftAverageTrue < targetRevs || rightAverageTrue < targetRevs)
-        {
-          if(leftAverageTrue < targetRevs)
-          {
-            //frontLeft.set(.75);
-            backLeft.set(-.5);
-          }
-          if(rightAverageTrue < targetRevs)
-          {
-            backRight.set(.5);
-          }
-          updateEncoders();
-        }
-        //frontLeft.set(0);
-        backLeft.set(0);
-        //frontRight.set(0);
-        backRight.set(0);
-        while(DriverStation.getInstance().isAutonomous())
-        {
-          chassisJoystick.setRumble(GenericHID.RumbleType.kLeftRumble,1);
-        }
+        chassis.autoDrive(1, 1, targetRevs, targetRevs);
     
     }
   
@@ -158,47 +174,63 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    //chassis.tankDrive(chassisJoystick.getY(Hand.kLeft), chassisJoystick.getY(Hand.kLeft), true);
-    backLeft.set(chassisJoystick.getY(GenericHID.Hand.kLeft)*speedMod*directionMod);
-    frontLeft.set(chassisJoystick.getY(GenericHID.Hand.kLeft)*speedMod*directionMod);
-    frontRight.set(chassisJoystick.getY(GenericHID.Hand.kRight)*speedMod*directionMod);
-    backRight.set(chassisJoystick.getY(GenericHID.Hand.kRight)*speedMod*directionMod);
-    if(chassisJoystick.getBumperPressed(GenericHID.Hand.kRight) && speedMod < 1)
+    
+
+    chassis.baseDrive();
+    if(lift.isRaised())
     {
-      speedMod+= .1;
-    }
-    else if(chassisJoystick.getBumperPressed(GenericHID.Hand.kLeft) && speedMod > 0)
-    {
-      speedMod-= .1;
-    }
-    else if(chassisJoystick.getXButtonPressed())
-    {
-      directionMod = directionMod*-1;
-    }
-    else if(chassisJoystick.getAButtonPressed())
-    {
-      backLeft.setIdleMode(IdleMode.kCoast);
-      backRight.setIdleMode(IdleMode.kCoast);
-    }
-    else if(chassisJoystick.getBButtonPressed())
-    {
-      
-      backLeft.setIdleMode(IdleMode.kBrake);
-      backRight.setIdleMode(IdleMode.kBrake);
-    }
-    if(mechanismController.getXButtonPressed())
-    {
-      stepControl = !stepControl;
-    }
-    if(stepControl)
-    {
-      lift.steppingLiftControl();
+      chassis.setSpeedMod2(.2);
     }
     else
     {
-      lift.baseLiftControl();
+      chassis.setSpeedMod2(1);
     }
     
+      lift.steppingLiftControl();
+      if(mechanismController.getTriggerAxis(GenericHID.Hand.kRight) >.25)
+      {
+        cargoIntake.set(mechanismController.getTriggerAxis(GenericHID.Hand.kRight));
+      }
+      else if(mechanismController.getTriggerAxis(GenericHID.Hand.kLeft) > .25)// && !cargoSwitch.get())
+      {
+        cargoIntake.set(-mechanismController.getTriggerAxis(GenericHID.Hand.kLeft));
+      }
+      else
+      {
+        cargoIntake.set(0);
+      }
+     
+    
+      if(mechanismController.getY(GenericHID.Hand.kRight) > .75)
+      {
+        drawBridge.set(mechanismController.getY(GenericHID.Hand.kRight) /2);
+      }
+      else if(mechanismController.getY(Hand.kRight) < -0.75 && !drawbridgeSwitch.get() )
+      {
+        drawBridge.set(mechanismController.getY(Hand.kRight) /2);
+      }
+      else
+      {
+        drawBridge.set(0);
+      }
+      
+      if(mechanismController.getBButtonPressed() ) //&& drawbridgeSwitch.get() == true)
+      {
+        if(hasHatch)
+        {
+          hatchIntake.outakeHatch();
+          hasHatch = false;
+          //mechanismController.setRumble(RumbleType.kRightRumble, 1);
+        }
+        else
+        {
+          hatchIntake.intakeHatch();
+          hasHatch = true;
+          
+        }
+      }
+      hatchIntake.displayPositions();
+      SmartDashboard.putBoolean("hasHatch", hasHatch);
     
     
   }
@@ -207,7 +239,42 @@ public class Robot extends TimedRobot {
    * This function is called periodically during test mode.
    */
   @Override
-  public void testPeriodic() {
+  public void testPeriodic() 
+  {
+    /*System.out.println(testFlag);
+    if(mechanismController.getBButton() && !testFlag)
+    {
+      hatchIntake.testOpenClose(true);
+      System.out.println("Open");
+      testFlag = true;
+    }
+    else if(!mechanismController.getBButton() && testFlag)
+    {
+        hatchIntake.testOpenClose(false);
+        System.out.println("Closed");
+        testFlag = false;
+    }
+    if(mechanismController.getXButtonPressed())
+    {
+        hatchIntake.pistonControl(false);
+    }
+    else if(mechanismController.getAButtonPressed())
+    {
+        hatchIntake.pistonControl(true);
+    }
+    
   }
+  */
+    //hatchIntake.independentControl();
+    //hatchIntake.displayPositions();
+  if(testFlag)
+  {
+    lift.calibrateSensors();
+    testFlag = true;
+  }
+  
+  
+
+}
 }
     
