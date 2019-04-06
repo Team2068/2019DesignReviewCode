@@ -92,7 +92,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    mux = new MultiplexColorSensor(ports, I2C.Port.kMXP);
+    //mux = new MultiplexColorSensor(ports, I2C.Port.kMXP);
     //lighting.init();
     cargoIntakeMotor.setIdleMode(IdleMode.kCoast);
     drawBridge.setIdleMode(IdleMode.kBrake);
@@ -264,6 +264,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     //lighting.test();
+    mux = new MultiplexColorSensor(ports, I2C.Port.kMXP);
     follower = new LineFollower(chassis, mux, ports);
   }
   /**

@@ -23,7 +23,7 @@ public class MechanismControl
         lift.totalLiftControl();
         
         //System.out.println("Finished lift control");
-        if(controller.getBButtonPressed() && lift.getCurrentPosition() != 0 )
+        if(controller.getBButtonPressed() && (lift.getCurrentPosition() != 0 || lift.getManualMode()) )
       {
         if(hasHatch)
         {

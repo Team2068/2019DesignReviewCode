@@ -4,6 +4,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import frc.sensors.*;
+
+import javax.lang.model.util.ElementScanner6;
+
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -14,22 +17,22 @@ public class Lift
     private CANSparkMax motor;
     private XboxController controller;
     private VirtualCANEncoder encoder;
-    private LimitSwitch cargoSwitch, upperSwitch;
+    private LimitSwitch lowerSwitch, upperSwitch;
     private double trueTicks = 0;
     private double startTicks = 0;
     private boolean hatchMode = false;
     private boolean targetMet = false;
-    
+    private boolean manualMode = false;
     private double[] hatchHeights = {0, 47.193, 131, 208};
     private double[] cargoHeights = {0, 23, 112, 183};
     private int curPosition = 0;
-    public Lift(CANSparkMax motor,XboxController controller, LimitSwitch cargoSwitch, LimitSwitch upperSwitch)
+    public Lift(CANSparkMax motor,XboxController controller, LimitSwitch lowerSwitch, LimitSwitch upperSwitch)
     {
         this.motor = motor;
         this.controller= controller;
         this.upperSwitch = upperSwitch;
         encoder = new VirtualCANEncoder(motor);
-        this.cargoSwitch = cargoSwitch;
+        this.lowerSwitch = lowerSwitch;
         motor.setInverted(true);
         motor.setIdleMode(IdleMode.kBrake);
     }
@@ -64,49 +67,90 @@ public class Lift
         {
             selectedHeights = cargoHeights;
         }
-        if(controller.getAButtonPressed() && curPosition > 0 &&  !(MechanismControl.getHasHatch() && curPosition == 1) )
+        if(controller.getAButtonPressed()   )
         {
-            curPosition--;
-            targetMet = false;
+            if(curPosition == 0)
+            {
+                curPosition = curPosition;
+                targetMet = true;
+            }
+            else if(MechanismControl.getHasHatch() && curPosition == 1)
+            {
+                curPosition = curPosition;
+                targetMet = true;
+            }
+            else
+            {
+                curPosition--;
+                targetMet = false;
+            }
         }
-        else if(controller.getYButtonPressed() && curPosition < selectedHeights.length-1 )
+        else if(controller.getYButtonPressed() )
         {
-            curPosition++;
-            targetMet = false;
+            if(  curPosition >= selectedHeights.length-1)
+            {
+                curPosition = curPosition;
+                targetMet = true;
+            }
+            else
+            {
+                curPosition++;
+                targetMet = false;
+            }
         }
         else if(controller.getXButtonPressed())
         {
+            if(MechanismControl.getHasHatch())
+            {
+                hatchMode = true;
+                curPosition = 1;
+                targetMet = false;
 
-            hatchMode = !hatchMode;
-            curPosition = 0;
-            targetMet = false;
+            }
+            else
+            {
+
+                hatchMode = !hatchMode;
+                curPosition = 0;
+                targetMet = false;
+            }
             
             
         }
+        if(curPosition < 0)
+        {
+            curPosition = 0;
+            targetMet = true;
+        }
+        if(curPosition > selectedHeights.length-1)
+        {
+            curPosition = selectedHeights.length-1;
+            targetMet = true;
+        }
+        //This is the code that controls physical motion of the lift
+        double encoderPosition = encoder.getPosition();
         if( curPosition == 0)
         {
-            
-                if(!cargoSwitch.get() )
+
+                if(!lowerSwitch.get() || encoderPosition > -10 )
                 {
                     motor.set(-.8);
-                    if(controller.getAButtonPressed())
-                    {
-                        curPosition++;
-                        
-                    }
+                    
                 }
                else
                {
                     motor.set(0);
                     encoder.reset();
+                    targetMet = true;
                }
-               targetMet = true;
+               
                 
                 
         }
-            else if(encoder.getPosition() < selectedHeights[curPosition] + 5 && !targetMet)
+        else if(encoderPosition < selectedHeights[curPosition] + 5 && !targetMet)
             {
-                if(encoder.getPosition() < selectedHeights[curPosition]  && !upperSwitch.get() )
+                if(encoderPosition < selectedHeights[curPosition]  && !upperSwitch.get() && !(encoderPosition > selectedHeights[selectedHeights.length-1] + 10) )
+
                 {
                     motor.set(.8);
                 }
@@ -114,18 +158,18 @@ public class Lift
                 {
                     motor.set(.05);
                     targetMet = true;
-                    System.out.println("Hit Target");
+                    //System.out.println("Hit Target");
                 }
             }
-            else if(encoder.getPosition() > selectedHeights[curPosition] - 5 && !targetMet)
+        else if(encoderPosition > selectedHeights[curPosition] - 5 && !targetMet )
             {
-                if(encoder.getPosition() > selectedHeights[curPosition])
+                if(encoderPosition > selectedHeights[curPosition] && !lowerSwitch.get() && !(encoderPosition < -10))
                 {
                     motor.set(-.8);
                 }
                 else
                 {
-                    System.out.println("Hit target");
+                    //System.out.println("Hit target");
                     motor.set(.05);
                     targetMet = true;
                 }
@@ -135,12 +179,13 @@ public class Lift
                 motor.set(.05);
             }
             //System.out.println(curPosition);
-            System.out.println("Target Met: " + targetMet);
-            System.out.println(cargoSwitch.get());
-            SmartDashboard.putNumber("Lift Encoder", encoder.getPosition());
+            //System.out.println("Target Met: " + targetMet);
+            //System.out.println(lowerSwitch.get());
+            SmartDashboard.putNumber("Lift Encoder", encoderPosition);
             SmartDashboard.putBoolean("Target Met", targetMet);
             
     } 
+    
     public void calibrateSensors()
     {
         encoder.reset();
@@ -154,7 +199,7 @@ public class Lift
                 counter++;
             }
         }
-        while(!cargoSwitch.get())
+        while(!lowerSwitch.get())
         {
             motor.set(-.5);
         }
@@ -193,17 +238,23 @@ public class Lift
     }
     public void totalLiftControl()
     {
-        if(controller.getBumper(GenericHID.Hand.kLeft) && controller.getBumper(GenericHID.Hand.kRight))
+        if(controller.getBumper(GenericHID.Hand.kLeft) && controller.getBumperPressed(GenericHID.Hand.kRight))
         {
-            System.out.println("Starting Base Lift Control");
+            
+            //System.out.println("Starting Base Lift Control");
+            manualMode = !manualMode;
+            targetMet = true;
+            //System.out.println("Finishing Base Lift Control");
+        }
+        if(manualMode)
+        {
+            //System.out.println("Starting Stepping Lift Control");
             baseLiftControl();
-            System.out.println("Finishing Base Lift Control");
+            //System.out.println("Ending Stepping Lift Control");
         }
         else
         {
-            System.out.println("Starting Stepping Lift Control");
             steppingLiftControl();
-            System.out.println("Ending Stepping Lift Control");
         }
         displayValues();
     }
@@ -219,11 +270,15 @@ public class Lift
     {
         SmartDashboard.putNumber("Current Position", curPosition);
         SmartDashboard.putNumber("Lift Encoder", encoder.getPosition());
-        SmartDashboard.putBoolean("Bottom Limit", cargoSwitch.get());
+        SmartDashboard.putBoolean("Bottom Limit", lowerSwitch.get());
         SmartDashboard.putNumber("Lift Motor", motor.get());
         SmartDashboard.putBoolean("Upper Limit", upperSwitch.get());
         SmartDashboard.putBoolean("Hatch Mode", hatchMode);
 
+    }
+    public boolean getManualMode()
+    {
+        return(manualMode);
     }
     
 } 

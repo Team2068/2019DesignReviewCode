@@ -71,7 +71,7 @@ public class PneumaticsControl
         
 
     }
-    public void venturiAlternator()
+   /* public void venturiAlternator()
     {
         if(hasHatch)
         {
@@ -83,13 +83,13 @@ public class PneumaticsControl
                     timer1.reset();
                     flag1 = false;
                 }
-                System.out.println("Debug: Turning off suction cups");
+                //System.out.println("Debug: Turning off suction cups");
                 
                 
                 suctionCups.set(false);
                
                 
-                    System.out.println("Debug: Turning off air outake");
+                    //System.out.println("Debug: Turning off air outake");
                 if(timer2.get() > 2.1)
                 {
                 airOutake.set(false);
@@ -98,7 +98,7 @@ public class PneumaticsControl
             }
             else if(timer2.get() > 3)
             {
-                System.out.println("Debug: Turning on air outake");
+                //System.out.println("Debug: Turning on air outake");
                 flag1 = true;
                 if(flag2)
                 {
@@ -110,7 +110,7 @@ public class PneumaticsControl
                 
                 
                 
-                    System.out.println("Debug: Turning on suction cups");
+                    //System.out.println("Debug: Turning on suction cups");
                     suctionCups.set(true);
                 
             }
@@ -120,12 +120,12 @@ public class PneumaticsControl
         else
         {
             airOutake.set(false);
-            System.out.println("Debug: No Hatch");
+            //System.out.println("Debug: No Hatch");
             SmartDashboard.putNumber("Timer 1", timer1.get());
             SmartDashboard.putNumber("Timer 2", timer2.get());
         }
         
-    }
+    }*/
     
     public void testOpenClose(boolean open)
     {
@@ -162,7 +162,7 @@ public class PneumaticsControl
         suctionControl(false);
         piston.set(DoubleSolenoid.Value.kReverse);
         hasHatch = false;
-        timer2.stop();
+       
     }
     public void displayPositions()
     {
