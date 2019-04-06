@@ -14,6 +14,9 @@ public class LineFollower {
     private static final double MOVE_SPEED = 0.6;
     private static final double SLOW_SPEED = 0.4;
 
+    private boolean hasHitLine = false;
+    private boolean fromLeft = false;
+
     private DriveTrain chassis;
 
     private int leftColorSensor, rightColorSensor, leftProximitySensor, rightProximitySensor;
@@ -21,6 +24,8 @@ public class LineFollower {
     private MultiplexColorSensor sensor;
 
     public LineFollower(DriveTrain chassis, MultiplexColorSensor sensor, int [] ports ) {
+        hasHitLine = false;
+        fromLeft = false;
 
         this.chassis = chassis;
 
@@ -42,28 +47,31 @@ public class LineFollower {
         //Follow Line until too close
         followLine();
 
-        //turn until straight
-        straighten();
-
         //score
         return true;
     }
 
     public void moveForwardUntilLine() {
-        while (sensor.getGreyscale(leftColorSensor) < TAPE_THRESHOLD && sensor.getGreyscale(rightColorSensor) < TAPE_THRESHOLD) {
-                chassis.set(LINE_UP_SPEED);
+        while (!isOnLineLeft() || !isOnLineRight()) {
+            chassis.set(LINE_UP_SPEED);
         }
+        // Both of the sensors is now on the line
         chassis.set(0);
     }
 
-    public void turnUntilLine() {
-        while (sensor.getGreyscale(leftColorSensor) < TAPE_THRESHOLD &&     
-                sensor.getGreyscale(rightColorSensor) < TAPE_THRESHOLD) {
+    /*public void turnUntilLine() {
+        while (!(sensor.getGreyscale(leftColorSensor) < TAPE_THRESHOLD &&     
+                sensor.getGreyscale(rightColorSensor) < TAPE_THRESHOLD)) {
                 
+                if(sensor.getGreyscale(leftColorSensor)) {
+
+                } else if (sensor.getGreyscale(rightColorSensor)){
+                    
+                }
                 chassis.setLeft(LINE_UP_SPEED);
                 chassis.setRight(-LINE_UP_SPEED);
         }
-    }
+    }*/
 
     public void followLine() {
         // MAYBE CHANGE TO && FROM ||
@@ -83,26 +91,6 @@ public class LineFollower {
                 }
         }
         //chassis.set(0);
-    }
-
-    private Thread left = new Thread(() -> {
-        while (sensor.getGreyscale(leftProximitySensor) < DISTANCE && !Thread.interrupted()) {
-            chassis.setLeft(MOVE_SPEED);
-        }
-        chassis.setLeft(0);
-    });
-
-    private Thread right = new Thread(() -> {
-        while(sensor.getGreyscale(rightProximitySensor) < DISTANCE && !Thread.interrupted()) {
-            chassis.setRight(MOVE_SPEED);
-        }
-        chassis.setRight(0);
-    });
-
-
-    public void straighten() {
-        left.run();
-        right.run();
     }
 
     private boolean isOnLineLeft() {

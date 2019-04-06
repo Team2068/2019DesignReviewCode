@@ -194,6 +194,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     //lighting.driverControl();
+    liftPistonFront.set(DoubleSolenoid.Value.kReverse);
+    liftPistonBack.set(DoubleSolenoid.Value.kReverse);
   }
 
   /**
@@ -206,10 +208,10 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Estop", eStop);
     //System.out.println("Has worked for" + counter + "acts.");
    
-    SmartDashboard.putNumber("LeftColorSensor", mux.getGreyscale(LEFT_COLOR_SENSOR_PORT));
+    /*SmartDashboard.putNumber("LeftColorSensor", mux.getGreyscale(LEFT_COLOR_SENSOR_PORT));
     SmartDashboard.putNumber("RightColorSensor", mux.getGreyscale(RIGHT_COLOR_SENSOR_PORT));
     SmartDashboard.putNumber("LeftProxSensor", mux.getGreyscale(LEFT_PROX_SENSOR_PORT));
-    SmartDashboard.putNumber("RightProxSensor", mux.getGreyscale(RIGHT_PROX_SENSOR_PORT));
+    SmartDashboard.putNumber("RightProxSensor", mux.getGreyscale(RIGHT_PROX_SENSOR_PORT));*/
     
     mechanismControl.baseControl();
     //cargoIntake.baseControl();
@@ -240,7 +242,7 @@ public class Robot extends TimedRobot {
       }
       frontPistonFlag = !frontPistonFlag;
     }
-    chassis.baseDrive();
+    
     if(chassisJoystick.getAButtonPressed())
     {
       if(backPistonFlag)
@@ -285,7 +287,7 @@ public class Robot extends TimedRobot {
     else if(mechanismController.getYButtonPressed()) {
       follower.followLine();
     } else if(mechanismController.getBButtonPressed()) {
-      follower.straighten();
+      //follower.straighten();
     } else if(mechanismController.getAButtonPressed()) {
       lift.setCurrentPosition(lift.getCurrentPosition() + 1);
     }
