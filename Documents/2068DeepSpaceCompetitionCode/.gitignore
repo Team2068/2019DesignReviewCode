@@ -150,6 +150,9 @@ gradle-app.setting
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
 
+# WPI Lib stuff
+src/.wpilib
+
 # # VS Code Specific Java Settings
 .classpath
 .project
