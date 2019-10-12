@@ -21,11 +21,11 @@ public class CargoIntake
     {
         if(controller.getY(GenericHID.Hand.kRight) > .25  )
         {
-            drawbridgeMotor.set(controller.getY(GenericHID.Hand.kRight)*.6);
+            drawbridgeMotor.set(controller.getY(GenericHID.Hand.kRight)*.7);
         }
         else if(controller.getY(GenericHID.Hand.kRight) < -.25)// && !drawbridgeSwitch.get())
         {
-            drawbridgeMotor.set(controller.getY(GenericHID.Hand.kRight)*.6);
+            drawbridgeMotor.set(controller.getY(GenericHID.Hand.kRight)*.7);
         }
         else
         {

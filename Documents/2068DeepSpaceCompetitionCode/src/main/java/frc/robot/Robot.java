@@ -7,7 +7,7 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.*;
@@ -133,12 +133,14 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() 
   {
-    
+    double baseTemp = (frontRight.getMotorTemperature() + frontLeft.getMotorTemperature() + backLeft.getMotorTemperature() + backRight.getMotorTemperature())/4.0;
     mechanismControl.displayPositions();
     chassis.displayValues();
     SmartDashboard.putNumber("Right Stick", mechanismController.getY(GenericHID.Hand.kRight));
     SmartDashboard.putBoolean("Upper Limit", motherSwitch.get());
     SmartDashboard.putNumber("Drawbridge Encoder", drawBridge.getEncoder().getPosition());
+    SmartDashboard.putNumber("Base Temp", baseTemp);
+    SmartDashboard.putNumber("Lift Temp", liftMotor.getMotorTemperature()); 
     ////System.out.println("Is working");
   }
 

@@ -51,6 +51,21 @@ public class PneumaticsControl
        suctionCups.set(on);
         
     }
+    public void controlPiston()
+    {
+        if(controller.getBumperPressed(GenericHID.Hand.kLeft))
+        {
+            if( piston.get().equals(DoubleSolenoid.Value.kReverse))
+            {
+            piston.set(DoubleSolenoid.Value.kForward);
+            }
+            else
+            {
+                piston.set(DoubleSolenoid.Value.kReverse);
+            }
+        }
+        
+    }
     public void intakeHatch()
     {
         piston.set(DoubleSolenoid.Value.kForward);

@@ -24,7 +24,7 @@ public class Lift
     private boolean targetMet = false;
     private boolean manualMode = false;
     private double[] hatchHeights = {0, 47.193, 131, 208};
-    private double[] cargoHeights = {0, 23, 112, 183};
+    private double[] cargoHeights = {0, 28, 112, 183};
     private int curPosition = 0;
     public Lift(CANSparkMax motor,XboxController controller, LimitSwitch lowerSwitch, LimitSwitch upperSwitch)
     {
@@ -132,7 +132,7 @@ public class Lift
         if( curPosition == 0)
         {
 
-                if(!lowerSwitch.get() || encoderPosition > -10 )
+                if(!lowerSwitch.get() && encoderPosition > -10 )
                 {
                     motor.set(-.8);
                     
@@ -238,15 +238,8 @@ public class Lift
     }
     public void totalLiftControl()
     {
-        if(controller.getBumper(GenericHID.Hand.kLeft) && controller.getBumperPressed(GenericHID.Hand.kRight))
-        {
-            
-            //System.out.println("Starting Base Lift Control");
-            manualMode = !manualMode;
-            targetMet = true;
-            //System.out.println("Finishing Base Lift Control");
-        }
-        if(manualMode)
+        
+        if(controller.getBumper(GenericHID.Hand.kRight))
         {
             //System.out.println("Starting Stepping Lift Control");
             baseLiftControl();
@@ -255,8 +248,10 @@ public class Lift
         else
         {
             steppingLiftControl();
+            
         }
         displayValues();
+        SmartDashboard.putBoolean("Manual Mode", manualMode);
     }
     public boolean getTargetMet()
     {
@@ -279,6 +274,14 @@ public class Lift
     public boolean getManualMode()
     {
         return(manualMode);
+    }
+    public void liftToLevel(int level)
+    {
+        setCurrentPosition(level);
+        while(!targetMet)
+        {
+            steppingLiftControl();
+        }
     }
     
 } 

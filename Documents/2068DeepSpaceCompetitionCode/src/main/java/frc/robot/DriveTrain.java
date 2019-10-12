@@ -46,9 +46,9 @@ public class DriveTrain
   }
   public void baseDrive()
   {
-      if(controller.getTriggerAxis(GenericHID.Hand.kRight) > .25)
+      if(controller.getTriggerAxis(GenericHID.Hand.kRight) > .7 * .9)
       {
-          speedMod3 = 1;
+          speedMod3 = controller.getTriggerAxis(GenericHID.Hand.kRight) * .9;
       }
       else
       {
@@ -68,6 +68,21 @@ public class DriveTrain
           backLeft.set(0);
           frontRight.set(0);
           backRight.set(0);
+      }
+      if(controller.getXButtonPressed())
+      {
+          frontRight.setIdleMode(IdleMode.kCoast);
+          frontLeft.setIdleMode(IdleMode.kCoast);
+          backRight.setIdleMode(IdleMode.kCoast);
+          backLeft.setIdleMode(IdleMode.kCoast);
+
+      }
+      if(controller.getBButtonPressed())
+      {
+          frontRight.setIdleMode(IdleMode.kBrake);
+          frontLeft.setIdleMode(IdleMode.kBrake);
+          backLeft.setIdleMode(IdleMode.kBrake);
+          backRight.setIdleMode(IdleMode.kBrake);
       }
       //System.out.println("Front Right: " + frontRight.get());
       //System.out.println("Back Right: " + backRight.get());
