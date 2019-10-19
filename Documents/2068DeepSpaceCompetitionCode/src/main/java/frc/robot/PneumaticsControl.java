@@ -11,16 +11,17 @@ import edu.wpi.first.wpilibj.drive.*;
 import frc.sensors.*;
 public class PneumaticsControl  
 {
-    //Solenoid suction1, suction2, airOutake;
+   // Solenoid suction1, suction2, airOutake;
     public Solenoid suctionCups, airOutake;
     public DoubleSolenoid piston;
     Timer timer1 = new Timer();
     XboxController controller;
-    //public PneumaticsControl(Solenoid suction1, Solenoid suction2, Solenoid airOutake,  DoubleSolenoid piston, XboxController controller )
+   // public PneumaticsControl(Solenoid suction1, Solenoid suction2, Solenoid airOutake,  DoubleSolenoid piston, XboxController controller ){}
     Timer timer2 = new Timer();
     private boolean hasHatch = false;
     private boolean flag1 = true;
     private boolean flag2 = true;
+
     public PneumaticsControl(Solenoid suctionCups, Solenoid airOutake,  DoubleSolenoid piston, XboxController controller)
     {
        // this.suction1 = suction1;
@@ -78,7 +79,7 @@ public class PneumaticsControl
         suctionCups.set(false);
         wait(.25);
         airOutake.set(false);
-        piston.set(DoubleSolenoid.Value.kReverse);
+        //piston.set(DoubleSolenoid.Value.kReverse);
        
         
         
@@ -86,7 +87,7 @@ public class PneumaticsControl
         
 
     }
-   /* public void venturiAlternator()
+    public void venturiAlternator()
     {
         if(hasHatch)
         {
@@ -140,9 +141,9 @@ public class PneumaticsControl
             SmartDashboard.putNumber("Timer 2", timer2.get());
         }
         
-    }*/
+    }
     
-    public void testOpenClose(boolean open)
+   public void testOpenClose(boolean open)
     {
         if(open)
         {
@@ -221,8 +222,8 @@ public class PneumaticsControl
     {
         piston.set(DoubleSolenoid.Value.kReverse);
     }
-
-    /*public void liftPistonsControl(boolean forward) //literally praying that this works
+}
+   /* public void liftPistonsControl(boolean forward) //literally praying that this works
     {
         if(forward)
         {
@@ -251,6 +252,7 @@ public class PneumaticsControl
     public void platformClimbing()
     {
         if(controller.)
-    }
-    */
-}
+    } */
+    
+//}
+//

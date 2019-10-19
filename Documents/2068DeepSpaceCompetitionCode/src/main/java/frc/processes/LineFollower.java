@@ -1,8 +1,8 @@
-package frc.processes;
+/*package frc.processes;
 
 import frc.robot.DriveTrain;
 import frc.sensors.i2c.*;
-import edu.wpi.first.wpilibj.DriverStation;
+//import edu.wpi.first.wpilibj.DriverStation;
 
 
 public class LineFollower {
@@ -14,7 +14,7 @@ public class LineFollower {
     private static final double MOVE_SPEED = 0.6;
     private static final double SLOW_SPEED = 0.4;
 
-    private boolean hasHitLine = false;
+    //private boolean hasHitLine = false;
     private boolean fromLeft = false;
 
     private DriveTrain chassis;
@@ -24,7 +24,7 @@ public class LineFollower {
     private MultiplexColorSensor sensor;
 
     public LineFollower(DriveTrain chassis, MultiplexColorSensor sensor, int [] ports ) {
-        hasHitLine = false;
+       // hasHitLine = false;
         fromLeft = false;
 
         this.chassis = chassis;
@@ -72,7 +72,7 @@ public class LineFollower {
                 chassis.setRight(-LINE_UP_SPEED);
         }
     }*/
-
+/*
     public void followLine() {
         // MAYBE CHANGE TO && FROM ||
         while (sensor.getGreyscale(leftProximitySensor) < DISTANCE ||
@@ -101,4 +101,4 @@ public class LineFollower {
         return sensor.getGreyscale(rightColorSensor) > TAPE_THRESHOLD;
     }
 
-}
+} */
